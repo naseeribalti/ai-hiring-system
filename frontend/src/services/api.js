@@ -5,8 +5,8 @@ const token = localStorage.getItem('userToken');
 
 // Create a new axios instance
 const api = axios.create({
-  // Your backend API's base URL
-  baseURL: 'http://localhost:5000/api',
+  // Backend API base URL via Vite env, with dev fallback
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
 });
 
 // --- Interceptor for API Requests ---
