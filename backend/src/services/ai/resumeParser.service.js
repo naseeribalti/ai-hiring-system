@@ -1,7 +1,7 @@
 const axios = require('axios');
 const Resume = require('../../models/Resume');
 
-const AI_SERVICE_URL = 'http://localhost:5001/parse';
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:5001/parse';
 
 const callAiParsingService = async (resumeId) => {
   try {
@@ -16,9 +16,11 @@ const callAiParsingService = async (resumeId) => {
     const { file_url } = resume;
 
     console.log(`Sending request to AI service for resume: ${resumeId}`);
-    const response = await axios.post(AI_SERVICE_URL, {
-      file_url: file_url,
-    });
+    const response = await axios.post(
+      AI_SERVICE_URL,
+      { file_url },
+      { timeout: 15000 }
+    );
 
     // --- UPDATE THIS SECTION ---
     // 3. Get the parsed data (now including skills)

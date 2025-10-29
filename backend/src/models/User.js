@@ -52,8 +52,8 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Index for better query performance
-userSchema.index({ unique: true}); 
+// Indexes for better query performance
+userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ user_type: 1 });
 userSchema.index({ 'profile.location.city': 1 });
 

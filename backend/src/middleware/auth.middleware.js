@@ -47,12 +47,16 @@ const protect = async (req, res, next) => {
  */
 const authorize = (...roles) => {
   return (req, res, next) => {
-    if (!req.user || !roles.includes(req.user.user_type)) {
-      // User role is not authorized
-      return res.status(403).json({
-        message: `User role '${req.user.user_type}' is not authorized to access this route`,
-      });
+    // Ensure the user is authenticated first
+    if (!req.user) {
+      return res.status(401).json({ message: 'Not authorized' });
     }
+
+    if (!roles.includes(req.user.user_type)) {
+      // User role is not authorized
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
     // User role is authorized
     next();
   };

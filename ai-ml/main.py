@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import os
 from resume_parser.pdf_processor import (
     extract_text_from_pdf,
     download_file_from_url
@@ -9,8 +10,14 @@ from resume_parser.skill_extractor import extract_skills
 
 # Initialize the Flask app
 app = Flask(__name__)
+
 # Enable Cross-Origin Resource Sharing (CORS)
-CORS(app)
+cors_origins = os.getenv('CORS_ORIGINS', '*')
+if cors_origins == '*':
+    CORS(app)
+else:
+    origins = [o.strip() for o in cors_origins.split(',') if o.strip()]
+    CORS(app, resources={r"/*": {"origins": origins}})
 
 @app.route("/", methods=["GET"])
 def home():
@@ -55,4 +62,6 @@ def parse_resume():
     )
 
 if __name__ == "__main__":
-    app.run(port=5001, debug=True)
+    debug = os.getenv('FLASK_DEBUG', '0') == '1'
+    port = int(os.getenv('PORT', '5001'))
+    app.run(port=port, debug=debug)
