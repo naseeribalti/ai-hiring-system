@@ -10,6 +10,7 @@ const userRoutes = require('./src/routes/user.routes');
 const jobRoutes = require('./src/routes/job.routes');
 const resumeRoutes = require('./src/routes/resume.routes');
 const applicationRoutes = require('./src/routes/application.routes');
+const analyticsRoutes = require('./src/routes/analytics.routes'); // <-- ADD THIS
 
 // Load environment variables from .env file
 dotenv.config();
@@ -37,6 +38,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/resumes', resumeRoutes);
 app.use('/api/applications', applicationRoutes);
+app.use('/api/analytics', analyticsRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 

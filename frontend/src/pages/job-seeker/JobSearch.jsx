@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getActiveJobs } from '../../services/jobService'; // Import our new service
 import JobCard from '../../components/job-seeker/JobSearch/JobCard'; // Import the card
+import { ContentLoader } from '../../components/common/Loading/LoadingSpinner';
+
 
 const JobSearch = () => {
   const [jobs, setJobs] = useState([]);
@@ -25,8 +27,9 @@ const JobSearch = () => {
     fetchJobs();
   }, []); // Runs once on load
 
-  if (loading) {
-    return <div>Loading jobs...</div>;
+if (loading) {
+    // Replace the old text with your new component
+    return <ContentLoader text="Loading available jobs..." />;
   }
 
   if (error) {
@@ -41,7 +44,7 @@ const JobSearch = () => {
           <p>No active jobs found. Please check back later.</p>
         ) : (
           jobs.map((job) => (
-            <JobCard key={job._id} job={job} /> // Use the JobCard component
+            <JobCard key={job._id} job={job} />
           ))
         )}
       </div>

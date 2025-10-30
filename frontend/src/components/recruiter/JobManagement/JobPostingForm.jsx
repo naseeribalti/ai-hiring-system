@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createJob } from '../../../services/jobService';
+import '../../../styles/Form.css'; // <-- Import the shared Form CSS
+// Import validators if needed
+import { validateRequired } from '../../../utils/validators';
+import { getErrorMessage } from '../../../utils/helpers';
+
 
 const JobPostingForm = () => {
   const navigate = useNavigate();
@@ -9,33 +14,51 @@ const JobPostingForm = () => {
     job_description: '',
     company_name: '',
     city: '',
-    country: 'Pakistan', // Default
-    job_type: 'on_site', // Default
-    experience_level: 'entry', // Default
-    required_skills: '', // We'll use a comma-separated string
+    country: 'Pakistan',
+    job_type: 'on_site',
+    experience_level: 'entry',
+    required_skills: '',
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  // Use state for errors
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+     if (errors[e.target.name]) {
+      setErrors({ ...errors, [e.target.name]: null });
+    }
+  };
+
+  // --- Optional: Add Validation ---
+  const validateForm = () => {
+    const newErrors = {};
+    const titleVal = validateRequired(formData.job_title, 'Job Title');
+    const companyVal = validateRequired(formData.company_name, 'Company Name');
+    const cityVal = validateRequired(formData.city, 'City');
+    const descVal = validateRequired(formData.job_description, 'Job Description');
+
+    if (!titleVal.isValid) newErrors.job_title = titleVal.message;
+    if (!companyVal.isValid) newErrors.company_name = companyVal.message;
+    if (!cityVal.isValid) newErrors.city = cityVal.message;
+    if (!descVal.isValid) newErrors.job_description = descVal.message;
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
+    if (!validateForm()) return; // Validate first
 
-    // Convert skills string to an array
+    setLoading(true);
+    setErrors({});
+
     const skillsArray = formData.required_skills
       .split(',')
       .map(skill => skill.trim())
       .filter(skill => skill.length > 0);
 
-    // Format the data for your backend API
     const jobData = {
       job_title: formData.job_title,
       job_description: formData.job_description,
@@ -49,119 +72,77 @@ const JobPostingForm = () => {
         required_skills: skillsArray,
         experience_level: formData.experience_level,
       },
-      // We will add salary_range later
     };
 
     try {
-      // Call the API
       await createJob(jobData);
-      
-      // Success! Redirect to the recruiter dashboard
       navigate('/recruiter/dashboard');
-
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to post job.');
+      setErrors({ form: getErrorMessage(err) });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: '600px', margin: '0 auto' }}>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      
-      <div style={{ marginBottom: '15px' }}>
-        <label>Job Title:</label>
-        <input
-          type="text"
-          name="job_title"
-          value={formData.job_title}
-          onChange={handleChange}
-          required
-          style={{ width: '100%', padding: '8px' }}
-        />
-      </div>
+    // Add the form-container class
+    <div className="form-container">
+      {/* Remove h2 from here, page has it */}
+      <form onSubmit={handleSubmit}>
+        {errors.form && <p className="form-general-error">{errors.form}</p>}
+        
+        <div className="form-group"> {/* Add form-group class */}
+          <label htmlFor="job_title">Job Title:</label>
+          <input id="job_title" type="text" name="job_title" value={formData.job_title} onChange={handleChange} />
+          {errors.job_title && <p className="form-error-message">{errors.job_title}</p>}
+        </div>
 
-      <div style={{ marginBottom: '15px' }}>
-        <label>Company Name:</label>
-        <input
-          type="text"
-          name="company_name"
-          value={formData.company_name}
-          onChange={handleChange}
-          required
-          style={{ width: '100%', padding: '8px' }}
-        />
-      </div>
+        <div className="form-group">
+          <label htmlFor="company_name">Company Name:</label>
+          <input id="company_name" type="text" name="company_name" value={formData.company_name} onChange={handleChange} />
+           {errors.company_name && <p className="form-error-message">{errors.company_name}</p>}
+        </div>
 
-      <div style={{ marginBottom: '15px' }}>
-        <label>City:</label>
-        <input
-          type="text"
-          name="city"
-          value={formData.city}
-          onChange={handleChange}
-          required
-          style={{ width: '100%', padding: '8px' }}
-        />
-      </div>
+        <div className="form-group">
+          <label htmlFor="city">City:</label>
+          <input id="city" type="text" name="city" value={formData.city} onChange={handleChange} />
+           {errors.city && <p className="form-error-message">{errors.city}</p>}
+        </div>
 
-      <div style={{ marginBottom: '15px' }}>
-        <label>Job Type:</label>
-        <select
-          name="job_type"
-          value={formData.job_type}
-          onChange={handleChange}
-          style={{ width: '100%', padding: '8px' }}
-        >
-          <option value="on_site">On-Site</option>
-          <option value="remote">Remote</option>
-          <option value="hybrid">Hybrid</option>
-        </select>
-      </div>
+        <div className="form-group">
+          <label htmlFor="job_type">Job Type:</label>
+          <select id="job_type" name="job_type" value={formData.job_type} onChange={handleChange}>
+            <option value="on_site">On-Site</option>
+            <option value="remote">Remote</option>
+            <option value="hybrid">Hybrid</option>
+          </select>
+        </div>
 
-      <div style={{ marginBottom: '15px' }}>
-        <label>Experience Level:</label>
-        <select
-          name="experience_level"
-          value={formData.experience_level}
-          onChange={handleChange}
-          style={{ width: '100%', padding: '8px' }}
-        >
-          <option value="entry">Entry</option>
-          <option value="mid">Mid-Level</option>
-          <option value="senior">Senior</option>
-        </select>
-      </div>
+        <div className="form-group">
+          <label htmlFor="experience_level">Experience Level:</label>
+          <select id="experience_level" name="experience_level" value={formData.experience_level} onChange={handleChange}>
+            <option value="entry">Entry</option>
+            <option value="mid">Mid-Level</option>
+            <option value="senior">Senior</option>
+          </select>
+        </div>
 
-      <div style={{ marginBottom: '15px' }}>
-        <label>Required Skills (comma-separated):</label>
-        <input
-          type="text"
-          name="required_skills"
-          value={formData.required_skills}
-          onChange={handleChange}
-          placeholder="e.g., react, nodejs, mongodb"
-          style={{ width: '100%', padding: '8px' }}
-        />
-      </div>
+        <div className="form-group">
+          <label htmlFor="required_skills">Required Skills (comma-separated):</label>
+          <input id="required_skills" type="text" name="required_skills" value={formData.required_skills} onChange={handleChange} placeholder="e.g., react, nodejs, mongodb" />
+        </div>
 
-      <div style={{ marginBottom: '15px' }}>
-        <label>Job Description:</label>
-        <textarea
-          name="job_description"
-          value={formData.job_description}
-          onChange={handleChange}
-          required
-          rows="10"
-          style={{ width: '100%', padding: '8px' }}
-        />
-      </div>
+        <div className="form-group">
+          <label htmlFor="job_description">Job Description:</label>
+          <textarea id="job_description" name="job_description" value={formData.job_description} onChange={handleChange} rows="10" />
+           {errors.job_description && <p className="form-error-message">{errors.job_description}</p>}
+        </div>
 
-      <button type="submit" disabled={loading} style={{ padding: '10px 15px' }}>
-        {loading ? 'Posting Job...' : 'Post Job'}
-      </button>
-    </form>
+        <button type="submit" className="form-button" disabled={loading}> {/* Add form-button class */}
+          {loading ? 'Posting Job...' : 'Post Job'}
+        </button>
+      </form>
+    </div>
   );
 };
 

@@ -1,17 +1,12 @@
 import React from 'react';
-import RegisterForm from '../components/auth/RegisterForm'; // Import our new form
-import { Link } from 'react-router-dom';
+import RegisterForm from '../components/auth/RegisterForm';
 
 const Register = () => {
   return (
     <div>
-      <h2>Register</h2>
+      {/* No need for h2 or p tag, form handles it */}
       <RegisterForm />
-      <p>
-        Already have an account? <Link to="/login">Login here</Link>
-      </p>
     </div>
   );
 };
-
 export default Register;
