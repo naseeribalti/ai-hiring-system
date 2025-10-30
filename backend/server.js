@@ -83,6 +83,10 @@ app.use('/api/analytics', analyticsRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
+// 404 handler and centralized error handler
+app.use(notFound);
+app.use(errorHandler);
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
