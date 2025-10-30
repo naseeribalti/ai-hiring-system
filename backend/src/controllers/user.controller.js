@@ -46,16 +46,22 @@ const updateUserProfile = async (req, res) => {
     // 3. Update the user's profile fields
     // We use (user.profile.field = new_data) to allow partial updates
     if (profile) {
-      user.profile.first_name = profile.first_name || user.profile.first_name;
-      user.profile.last_name = profile.last_name || user.profile.last_name;
-      user.profile.phone = profile.phone || user.profile.phone;
-      user.profile.avatar = profile.avatar || user.profile.avatar;
-      user.profile.bio = profile.bio || user.profile.bio;
-      
+      // Ensure nested objects exist before assignment
+      if (!user.profile) user.profile = {};
+
+      user.profile.first_name = profile.first_name ?? user.profile.first_name;
+      user.profile.last_name = profile.last_name ?? user.profile.last_name;
+      user.profile.phone = profile.phone ?? user.profile.phone;
+      user.profile.avatar = profile.avatar ?? user.profile.avatar;
+      user.profile.bio = profile.bio ?? user.profile.bio;
+
       // Update location if provided
       if (profile.location) {
-        user.profile.location.city = profile.location.city || user.profile.location.city;
-        user.profile.location.country = profile.location.country || user.profile.location.country;
+        const currentLocation = user.profile.location || {};
+        user.profile.location = {
+          city: profile.location.city ?? currentLocation.city,
+          country: profile.location.country ?? currentLocation.country,
+        };
       }
     }
 
