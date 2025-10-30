@@ -1,0 +1,13 @@
+text,labels
+"Experienced Python developer with strong background in machine learning and data analysis using pandas and scikit-learn.","python,machine learning,data analysis,scikit-learn,pandas"
+"Frontend engineer skilled in React, JavaScript, and CSS with experience in modern build tools.","javascript,react,css,webpack"
+"Backend developer with Node.js, Express, and MongoDB expertise, building REST APIs.","node.js,express.js,mongodb,rest"
+"Cloud engineer with AWS, Docker, and Kubernetes for scalable deployments.","aws,docker,kubernetes,devops"
+"Data scientist proficient in TensorFlow, PyTorch, and deep learning for computer vision.","tensorflow,pytorch,deep learning,computer vision"
+"Mobile developer using Swift and Kotlin for native apps.","swift,kotlin,mobile development"
+"Full-stack developer with Next.js, TypeScript, and GraphQL.","next.js,typescript,graphql"
+"Security specialist with experience in OAuth, JWT, and encryption.","oauth,jwt,security"
+"Analytics engineer strong in SQL, dbt, and Airflow for data pipelines.","sql,dbt,airflow"
+"MLOps engineer experienced with Terraform, GitHub Actions, and Kubernetes.","terraform,github actions,kubernetes,mlops"
+"NLP engineer using Hugging Face Transformers and BERT for text classification.","transformers,bert,nlp"
+"QA engineer with Cypress and Selenium for end-to-end testing.","cypress,selenium,testing"

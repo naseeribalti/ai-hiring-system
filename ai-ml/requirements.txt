@@ -2,3 +2,23 @@ Flask==3.1.2
 flask-cors==6.0.1
 pdfminer.six==20231228
 requests==2.32.3
+
+# Core scientific stack
+numpy==2.1.3
+scipy==1.14.1
+pandas==2.2.3
+joblib==1.4.2
+
+# Classical ML
+scikit-learn==1.5.2
+
+# spaCy
+spacy==3.7.5
+
+# Transformers + sentence embeddings
+transformers==4.45.2
+sentence-transformers==3.1.1
+torch==2.5.1
+
+# TensorFlow (CPU)
+tensorflow==2.17.0

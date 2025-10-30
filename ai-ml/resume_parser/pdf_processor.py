@@ -11,17 +11,31 @@ def download_file_from_url(file_url):
     try:
         # Create a temporary file to store the downloaded PDF
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
-            # Download the file content
-            response = requests.get(file_url)
-            response.raise_for_status()  # Raise an error for bad responses
-            
-            # Write the content to the temporary file
-            temp_file.write(response.content)
-            
+            # Download the file content with timeout and streaming
+            response = requests.get(file_url, timeout=10, stream=True)
+            response.raise_for_status()
+
+            content_type = response.headers.get("Content-Type", "").lower()
+            if "pdf" not in content_type and not file_url.lower().endswith(".pdf"):
+                raise ValueError("URL does not point to a PDF file")
+
+            bytes_written = 0
+            max_bytes = 10 * 1024 * 1024  # 10 MB safety cap
+            for chunk in response.iter_content(chunk_size=8192):
+                if not chunk:
+                    continue
+                bytes_written += len(chunk)
+                if bytes_written > max_bytes:
+                    raise ValueError("File too large")
+                temp_file.write(chunk)
+
             print(f"File downloaded to: {temp_file.name}")
             return temp_file.name
     except requests.exceptions.RequestException as e:
         print(f"Error downloading file: {e}")
+        return None
+    except Exception as e:
+        print(f"Error processing file: {e}")
         return None
 
 def extract_text_from_pdf(pdf_path):
