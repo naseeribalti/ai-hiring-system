@@ -24,12 +24,12 @@ const callAiParsingService = async (resumeId) => {
 
     // --- UPDATE THIS SECTION ---
     // 3. Get the parsed data (now including skills)
-    const { extracted_text, extracted_skills } = response.data; // <-- ADD extracted_skills
+    const { extracted_text, extracted_skills } = response.data || {};
 
-    // 4. Update the resume in MongoDB
+    // 4. Update the resume in MongoDB with safe defaults
     resume.parsed_data = {
-      summary: extracted_text, // We still save the raw text
-      skills: extracted_skills, // <-- SAVE THE SKILLS ARRAY
+      summary: extracted_text || '',
+      skills: Array.isArray(extracted_skills) ? extracted_skills : [],
       // In the future, you'd add experience, education, etc.
     };
     resume.parsing_status = 'completed';

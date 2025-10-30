@@ -18,6 +18,16 @@ const analyticsRoutes = require('./src/routes/analytics.routes'); // <-- ADD THI
 // Load environment variables from .env file
 dotenv.config();
 
+// Validate required environment variables
+(() => {
+  const required = ['MONGO_URI', 'JWT_SECRET'];
+  const missing = required.filter((k) => !process.env[k]);
+  if (missing.length) {
+    console.error(`❌ Missing required environment variables: ${missing.join(', ')}`);
+    process.exit(1);
+  }
+})();
+
 // Connect to MongoDB
 connectDB();
 
