@@ -12,17 +12,30 @@ from resume_parser.skill_extractor import extract_skills
 app = Flask(__name__)
 
 # Enable Cross-Origin Resource Sharing (CORS)
-cors_origins = os.getenv('CORS_ORIGINS', '*')
-if cors_origins == '*':
-    CORS(app)
+# Default to a safe local origin when not explicitly configured.
+cors_origins_env = os.getenv('CORS_ORIGINS')
+if cors_origins_env is None:
+    # No CORS configured: allow local development origin only
+    default_origins = ['http://localhost:5173']
+    CORS(app, resources={r"/*": {"origins": default_origins}})
+elif cors_origins_env.strip() == '*':
+    # Allow wildcard only in explicit development/debug mode
+    if os.getenv('FLASK_DEBUG', '0') == '1' or os.getenv('ENV', '').lower() == 'development':
+        CORS(app)
+    else:
+        print('CORS_ORIGINS="*" is not allowed in production. Please set CORS_ORIGINS to a comma-separated list of allowed origins.')
+        # Do not enable CORS (requests from other origins will be blocked)
 else:
-    origins = [o.strip() for o in cors_origins.split(',') if o.strip()]
-    CORS(app, resources={r"/*": {"origins": origins}})
+    origins = [o.strip() for o in cors_origins_env.split(',') if o.strip()]
+    if origins:
+        CORS(app, resources={r"/*": {"origins": origins}})
+
 
 @app.route("/", methods=["GET"])
 def home():
     """A simple route to check if the AI service is alive."""
     return jsonify(message="AI-ML Service is running!")
+
 
 @app.route("/parse", methods=["POST"])
 def parse_resume():
@@ -47,7 +60,7 @@ def parse_resume():
     extracted_text = extract_text_from_pdf(temp_pdf_path)
     if extracted_text is None:
         return jsonify(error="Failed to extract text from PDF"), 500
-    
+
     # --- ADD THIS NEW STEP ---
     # 3. Extract skills from the raw text
     found_skills = extract_skills(extracted_text)
@@ -57,9 +70,10 @@ def parse_resume():
     return jsonify(
         file_url=file_url,
         extracted_text=extracted_text,
-        extracted_skills=found_skills, # <-- NEW FIELD
+        extracted_skills=found_skills,  # <-- NEW FIELD
         word_count=len(extracted_text.split())
     )
+
 
 if __name__ == "__main__":
     debug = os.getenv('FLASK_DEBUG', '0') == '1'
