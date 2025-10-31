@@ -47,7 +47,10 @@ def download_file_from_url(file_url):
                 pass
 
         # Stream the response and enforce size limits
-        with requests.get(file_url, stream=True, timeout=timeout) as response:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+        with requests.get(file_url, stream=True, timeout=timeout, headers=headers) as response:
             response.raise_for_status()
 
             content_type = response.headers.get("Content-Type", "").lower()
@@ -82,6 +85,15 @@ def download_file_from_url(file_url):
 
             print(f"File downloaded to: {temp_file.name} ({total} bytes)")
             return temp_file.name
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 401:
+            print(f"Error downloading file: 401 Unauthorized. The file might be private or require authentication.")
+            print(f"URL: {file_url}")
+            print(
+                f"Solution: Re-upload the resume or check Cloudinary settings to ensure public read access.")
+        else:
+            print(f"HTTP Error downloading file: {e}")
+        return None
     except requests.exceptions.RequestException as e:
         print(f"Error downloading file: {e}")
         return None
